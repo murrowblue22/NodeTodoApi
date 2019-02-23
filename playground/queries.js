@@ -46,7 +46,6 @@ User.findOne({
     console.log('User', user);
 })
 
-
 User.findById(userID).then((user) => {
     if(!user) {
         return console.log('Id not found');
