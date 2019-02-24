@@ -36,7 +36,7 @@ app.get('/todos/:id', (req, res) => {
     const id = req.params.id
    
     if (!ObjectID.isValid(id)) {
-        return res.status(404).send("Invalid ID format !!!!");
+        return res.status(404).send({Error:"Invalid ID format !!!!"});
     }
 
     Todo.findById(id).then((todo) => {
