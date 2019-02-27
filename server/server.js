@@ -54,13 +54,15 @@ app.get('/todos/:id', (req, res) => {
 app.delete('/todos/:id', (req, res) => {
     // get the id 
     const id = req.params.id; 
-
+    
     // validate the id -> not valid? return 404
     if (!ObjectID.isValid(id)) {
         return res.status(404).send({Error: "Invalid ID format for delete request!!!!"});
     }
 
     Todo.findOneAndDelete({_id: id}).then((todo) => {
+        
+        
         if(!todo) {
             return res.status(404).send({Error: "No Todo Found to delete"})
         }
