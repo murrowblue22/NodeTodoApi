@@ -1,15 +1,4 @@
-const env = process.env.NODE_ENV || 'development';
-console.log('env *****', env);
-
-if (env === 'development') {
-    process.env.PORT = 3000;
-    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
-}
-else if (env === 'test') {
-    process.env.PORT = 3000;
-    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';
-}
-
+const config = require('./config/config');
 const _ = require('lodash');
 const express = require('express'); 
 const bodyParser = require('body-parser');
@@ -19,11 +8,13 @@ const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 
-port = process.env.PORT || 3000; 
+//const port = process.env.PORT || 3000; 
 
 const app = express(); 
 
 app.use(bodyParser.json());
+
+//app.use(bodyParser.urlencoded({extended: true}));
 
 app.post('/todos', (req, res) => {
     var todo = new Todo({
@@ -36,6 +27,10 @@ app.post('/todos', (req, res) => {
         res.status(400).send(e);
     });
 }); 
+
+app.get('/', (req, res) => {
+    res.send("Hey u reached the home page5!!!!");
+})
 
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
@@ -120,8 +115,37 @@ app.delete('/todos/:id', (req, res) => {
     });
 }); 
 
-
-app.listen(port, () => {
-    console.log(`Server is up on port ${port}`); 
+app.post('/users', (req, res) => {
+    // res.send("Hey u hit the user route1");
+    // const user = _.pick(req.body, ['email', 'password'])
+    // console.log(user);
+    
+    // User.create(user).then((newUser) => {
+    //     return newUser.generateAuthToken();
+        
+    // })
+    // .then((token) => {
+    //     res.header('x-auth', token).send(user);
+    // }).catch((e) => {
+    //     res.status(400).send(e);
+    // })
+    
+    const body = _.pick(req.body, ['email', 'password']);
+    const user = new User(body);
+    
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => {
+        res.status(400).send(e);
+    })
+    
 });
-module.exports = {app};
+
+
+app.listen(process.env.PORT, process.env.IP, function() {
+    console.log(`Server NodeTodoAPi is up on port ${process.env.PORT}`); 
+});
+
+//module.exports = {app};
