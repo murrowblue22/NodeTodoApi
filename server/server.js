@@ -153,4 +153,4 @@ app.listen(process.env.PORT, process.env.IP, function() {
     console.log(`Server NodeTodoAPi is up on port ${process.env.PORT}`); 
 });
 
-//module.exports = {app};
+module.exports = {app};
