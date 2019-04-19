@@ -1,9 +1,10 @@
-const config = require('./config/config');
 const _ = require('lodash');
 const express = require('express'); 
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const bcrypt = require('bcryptjs');
 
+const config = require('./config/config');
 const {mongoose} = require('./db/mongoose'); 
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
@@ -144,6 +145,47 @@ app.post('/users', (req, res) => {
     
 });
 
+app.post('/users/mylogin', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    
+    console.log(body);
+    
+    User.findOne({email: body.email}).then((user) => {
+        
+        if(user) {
+            bcrypt.compare(body.password, user.password, (err, result) => {
+            if(err) {
+                console.log(err);
+            }
+            
+            res.header('x-auth', user.tokens[0].token).send(user);
+               
+            });
+        }
+        else {
+            const msg = "No value returned for User!!!!"
+            console.log(msg); 
+            
+            res.status(400).send(msg);
+        }
+        
+    }, (err) => {
+        res.status(400).send(err);
+    })
+}); 
+
+app.post('/users/login', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    
+    User.findByCredentials(body.email, body.password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+    })
+    .catch((e) => {
+        res.status(400).send();
+    });
+});
 
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
