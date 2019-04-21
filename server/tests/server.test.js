@@ -299,6 +299,31 @@ describe('POST /users/login', () => {
         })
         .end(done);
     });
-    
-    
+});
+
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        request(app)
+        .delete('/users/me/token')
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        .end((err, res) => {
+           
+           if(err ) {
+               return done(err);
+           }
+           
+           User.findOne({_id: users[0]._id}).then((user) => {
+                if(user) {
+                    expect(user.tokens.length).toBe(0)
+                    
+                }
+                else {
+                    console.log(`No user found for id ${users[0]._id}`); 
+                }
+                done();
+            }).catch((e) => done(e));
+        });
+    });
 });
